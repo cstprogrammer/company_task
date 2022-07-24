@@ -1,7 +1,5 @@
 # company_task
 
-# ![Laravel 9 CMS With Roles management]
-
 # Getting started
 
 ## Installation
