@@ -1,13 +1,12 @@
 <?php
 
-namespace App\Providers;use Illuminate\Pagination\UrlWindow;
-use Illuminate\Support\Collection;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Request;
-use Illuminate\Pagination\LengthAwarePaginator;
-use Illuminate\Support\Facades\Session;
-use Inertia\Inertia;
+namespace App\Providers;
 
+use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Pagination\UrlWindow;
+use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Request;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -20,6 +19,10 @@ class AppServiceProvider extends ServiceProvider
     public function register()
     {
         $this->registerLengthAwarePaginator();
+        $this->app->bind(
+            'App\Repositories\BaseFunctionNameRepository',
+            'App\Repositories\CompanyRepository'
+        );
     }
 
     /**
@@ -29,24 +32,28 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+        JsonResource::withoutWrapping();
     }
 
     private function registerLengthAwarePaginator()
     {
         $this->app->bind(LengthAwarePaginator::class, function ($app, $values) {
-            return new class(...array_values($values)) extends LengthAwarePaginator {
+            return new class(...array_values($values)) extends LengthAwarePaginator
+            {
                 public function only(...$attributes)
                 {
                     return $this->transform(function ($item) use ($attributes) {
                         return $item->only($attributes);
                     });
                 }
+
                 public function transform($callback)
                 {
                     $this->items->transform($callback);
+
                     return $this;
                 }
+
                 public function toArray()
                 {
                     return [
@@ -54,6 +61,7 @@ class AppServiceProvider extends ServiceProvider
                         'links' => $this->links(),
                     ];
                 }
+
                 public function links($view = null, $data = [])
                 {
                     $this->appends(Request::all());
@@ -65,6 +73,7 @@ class AppServiceProvider extends ServiceProvider
                         is_array($window['last']) ? '...' : null,
                         $window['last'],
                     ]);
+
                     return Collection::make($elements)->flatMap(function ($item) {
                         if (is_array($item)) {
                             return Collection::make($item)->map(function ($url, $page) {

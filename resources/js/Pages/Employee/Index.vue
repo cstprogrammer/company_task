@@ -108,45 +108,47 @@
                                     </thead>
                                     <tbody v-if="employees.data != 0">
                                     <tr
-                                        v-for="(company, index) in employees.data"
+                                        v-for="(employee, index) in employees.data"
                                         :key="employees.id"
                                     >
                                         <td>{{ index + 1 }}</td>
-                                        <td>{{ company.name }}</td>
-                                        <td>{{ company.employee_number }}</td>
-                                        <td>{{ company.email }}</td>
-                                        <td>{{ company.contact }}</td>
-                                        <td>{{ company.designation }}</td>
+                                        <td>{{ employee.name }}</td>
+                                        <td>{{ employee.employee_number }}</td>
+                                        <td>{{ employee.email }}</td>
+                                        <td>{{ employee.contact }}</td>
+                                        <td>{{ employee.designation }}</td>
                                         <td>
-                                            <div class="btn-group">
                                                 <Link
                                                     :href="
                                                             route(
                                                                 'employees.edit',
-                                                                company.id
+                                                                employee.id
                                                             )
                                                         "
-                                                    class="btn btn-primary"
+                                                    class="btn btn-primary btn-sm"
                                                 >
                                                     <i
                                                         class="fas fa-pencil-alt"
                                                     ></i>
                                                 </Link>
-                                                <Link
-                                                    :href="
-                                                            route(
-                                                                'employees.destroy',
-                                                                company.id
-                                                            )
-                                                        "
-                                                    method="delete"
-                                                    class="btn btn-danger"
+
+                                                <!-- begin::Delete button -->
+                                                <button
+                                                    @click="openModal(employee.id)"
+                                                    class="btn btn-danger btn-sm"
                                                 >
                                                     <i
                                                         class="fas fa-trash"
                                                     ></i>
-                                                </Link>
-                                            </div>
+                                                </button>
+                                                <!-- end::Delete button -->
+
+                                                <Modal
+                                                    :isOpen="status"
+                                                    @toggleModal="closeModal"
+                                                    @deleteData="deleteData"
+                                                />
+
                                         </td>
                                     </tr>
                                     </tbody>
@@ -185,14 +187,16 @@
 <script>
 //import layout App
 import LayoutApp from "../../Layouts/Admin/App.vue";
-import Pagination from "../../Components/Pagination.vue";
 import { Link, Head } from "@inertiajs/inertia-vue3";
+import Modal from "../../Components/Modal";
+import Pagination from "../../Components/Pagination.vue";
 import _ from "lodash";
 
 export default {
     components: {
-        Link,
         Head,
+        Link,
+        Modal,
         Pagination,
     },
 
@@ -200,12 +204,35 @@ export default {
         return {
             isLoading: false,
             q: "",
+            selectedEmployee: null,
+            status: false,
         };
     },
 
     layout: LayoutApp,
 
     methods: {
+
+        closeModal () {
+            this.status = false
+        },
+
+        deleteData () {
+            this.$inertia.delete(route('employees.destroy', this.selectedEmployee), {
+                preserveScroll: true,
+                onSuccess: () => {
+                    this.status = false
+                    this.selectedEmployee = null
+
+                }
+            })
+        },
+
+        openModal (id) {
+            this.selectedEmployee = id
+            this.status = true
+        },
+
         search: _.debounce(function() {
             this.$inertia.replace(
                 route("employees.index", {

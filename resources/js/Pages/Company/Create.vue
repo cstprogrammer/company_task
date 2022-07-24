@@ -106,7 +106,7 @@
                                             :class="{
                                                 'is-invalid': errors.contact,
                                             }"
-                                            placeholder="Enter contact details"
+                                            placeholder="Enter company contact"
                                         />
                                         <div
                                             v-if="errors.contact"

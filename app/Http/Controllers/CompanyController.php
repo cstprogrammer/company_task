@@ -3,14 +3,23 @@
 namespace App\Http\Controllers;
 
 use App\Models\Company;
-use App\Models\User;
+use App\Repositories\CommonRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
 
 class CompanyController extends Controller
 {
+    // space that we can use the repository from
+    protected $model;
+
+    public function __construct(Company $company)
+    {
+        parent::__construct();
+        // set the model
+        $this->model = new CommonRepository($company);
+    }
+
     /*
      * Show the form for creating a new resource.
      */
@@ -27,13 +36,14 @@ class CompanyController extends Controller
         //start transaction
         DB::beginTransaction();
         try {
-            $company = Company::findOrFail($id);
-            $company->delete();
+            $company = $this->model->find($id);
+            $this->model->delete($id);
             DB::commit();
             //end transaction
             return to_route('companies.index')->with('success', 'Company '.$company->name.' deleted successfully.');
         } catch (\Throwable $th) {
             DB::rollback();
+
             return to_route('companies.index')->with('error', 'Error deleting company. '.$th->getMessage());
         }
     }
@@ -44,9 +54,10 @@ class CompanyController extends Controller
     public function edit($id)
     {
         try {
-            $company = Company::findOrFail($id);
+            $company = $this->model->find($id);
+
             return Inertia::render('Company/Edit', [
-                'company' => $company
+                'company' => $company,
             ]);
         } catch (\Throwable $th) {
             return to_route('companies.index')->with('error', 'Error creating user. '.$th->getMessage());
@@ -58,23 +69,14 @@ class CompanyController extends Controller
      */
     public function index(Request $request)
     {
-        $companies = Company::when($request->q, function($query, $q){
-            $query->where('name', 'LIKE', "%".$q."%");
-            $query->Orwhere('location', 'LIKE', "%".$q."%");
+        $companies = $this->model->getModel()->when($request->q, function ($query, $q) {
+            $query->where('name', 'LIKE', '%'.$q.'%');
+            $query->Orwhere('location', 'LIKE', '%'.$q.'%');
         })->orderBy('id', 'desc')->paginate(10);
 
         return Inertia::render('Company/Index', [
-            'companies' => $companies
+            'companies' => $companies,
         ]);
-    }
-
-    /**
-     * Display a listing of user request data.
-     */
-    public function search(Request $request)
-    {
-        $companies = Company::where('name', 'like', '%' . $request->q . '%')->paginate(10);
-        return response()->json($companies);
     }
 
     /*
@@ -85,21 +87,21 @@ class CompanyController extends Controller
         //check form validation rule
         $this->validate($request, [
             'name' => ['required', 'string', 'max:255'],
-            'c' => ['required',  'max:255'],
+            'location' => ['required',  'max:255'],
             'contact' => ['required',  'max:255'],
         ]);
 
         //start transaction
         DB::beginTransaction();
         try {
-            $attributes = new Company($request->all());
-            $attributes->save();
+            $create = $this->model->create($request->all());
 
             DB::commit();
             //end transaction
-            return to_route('companies.index')->with('success', 'Company '.$attributes->name.' created successfully.');
+            return to_route('companies.index')->with('success', 'Company '.$create->name.' created successfully.');
         } catch (\Throwable $th) {
             DB::rollback();
+
             return to_route('companies.index')->with('error', 'Error creating company. '.$th->getMessage());
         }
     }
@@ -119,17 +121,16 @@ class CompanyController extends Controller
         //start transaction
         DB::beginTransaction();
         try {
-            $company = Company::findOrFail($id);
-            $company->update([
-                'name'      => $request->name,
-                'location'     => $request->location,
-                'contact'     => $request->contact,
-            ]);
+            $company = $this->model->find($id);
+
+            $this->model->update($request->all(), $id);
+
             DB::commit();
             //end transaction
             return to_route('companies.index')->with('success', 'Company '.$company->name.' updated successfully.');
         } catch (\Throwable $th) {
             DB::rollback();
+
             return to_route('companies.index')->with('error', 'Error updating company. '.$th->getMessage());
         }
     }

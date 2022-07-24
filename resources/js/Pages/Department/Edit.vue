@@ -60,7 +60,7 @@
                                             :class="{
                                                 'is-invalid': errors.name,
                                             }"
-                                            placeholder="Enter name"
+                                            placeholder="Enter department name"
                                         />
                                         <div
                                             v-if="errors.name"

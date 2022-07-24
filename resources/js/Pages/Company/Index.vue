@@ -114,7 +114,6 @@
                                         <td>{{ company.location }}</td>
                                         <td>{{ company.contact }}</td>
                                         <td>
-                                            <div class="btn-group">
                                                 <Link
                                                     :href="
                                                             route(
@@ -122,27 +121,31 @@
                                                                 company.id
                                                             )
                                                         "
-                                                    class="btn btn-primary"
+                                                    class="btn btn-primary btn-sm"
                                                 >
                                                     <i
                                                         class="fas fa-pencil-alt"
                                                     ></i>
                                                 </Link>
-                                                <Link
-                                                    :href="
-                                                            route(
-                                                                'companies.destroy',
-                                                                company.id
-                                                            )
-                                                        "
-                                                    method="delete"
-                                                    class="btn btn-danger"
+
+                                                <!-- begin::Delete button -->
+                                                <button
+                                                    @click="openModal(company.id)"
+                                                    class="btn btn-danger btn-sm"
                                                 >
                                                     <i
                                                         class="fas fa-trash"
                                                     ></i>
-                                                </Link>
-                                            </div>
+                                                </button>
+                                                <!-- end::Delete button -->
+
+                                                <Modal
+                                                    :isOpen="status"
+                                                    @toggleModal="closeModal"
+                                                    @deleteData="deleteData"
+                                                />
+
+
                                         </td>
                                     </tr>
                                     </tbody>
@@ -181,14 +184,16 @@
 <script>
 //import layout App
 import LayoutApp from "../../Layouts/Admin/App.vue";
-import Pagination from "../../Components/Pagination.vue";
 import { Link, Head } from "@inertiajs/inertia-vue3";
+import Modal from "../../Components/Modal";
+import Pagination from "../../Components/Pagination.vue";
 import _ from "lodash";
 
 export default {
     components: {
-        Link,
         Head,
+        Link,
+        Modal,
         Pagination,
     },
 
@@ -196,12 +201,33 @@ export default {
         return {
             isLoading: false,
             q: "",
+            selectedCompany: null,
+            status: false,
         };
     },
 
     layout: LayoutApp,
 
     methods: {
+        closeModal () {
+            this.status = false
+        },
+
+        deleteData () {
+            this.$inertia.delete(route('companies.destroy', this.selectedCompany), {
+                preserveScroll: true,
+                onSuccess: () => {
+                    this.status = false
+                    this.selectedCompany = null
+                }
+            })
+        },
+
+        openModal (id) {
+            this.selectedCompany = id
+            this.status = true
+        },
+
         search: _.debounce(function() {
             this.$inertia.replace(
                 route("companies.index", {

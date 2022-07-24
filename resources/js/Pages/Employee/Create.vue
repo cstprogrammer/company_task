@@ -62,7 +62,7 @@
                                             :class="{
                                                 'is-invalid': errors.name,
                                             }"
-                                            placeholder="Enter company name"
+                                            placeholder="Enter employee full name"
                                         />
                                         <div
                                             v-if="errors.name"
@@ -84,7 +84,7 @@
                                             :class="{
                                                 'is-invalid': errors.employee_number,
                                             }"
-                                            placeholder="Enter company location"
+                                            placeholder="Enter employee number"
                                         />
                                         <div
                                             v-if="errors.employee_number"
@@ -103,7 +103,7 @@
                                             :class="{
                                                 'is-invalid': errors.email,
                                             }"
-                                            placeholder="Enter email"
+                                            placeholder="Enter employee email address"
                                         />
                                         <div
                                             v-if="errors.email"
@@ -125,7 +125,7 @@
                                             :class="{
                                                 'is-invalid': errors.contact,
                                             }"
-                                            placeholder="Enter contact details"
+                                            placeholder="Enter contact number"
                                         />
                                         <div
                                             v-if="errors.contact"
@@ -147,7 +147,7 @@
                                             :class="{
                                                 'is-invalid': errors.designation,
                                             }"
-                                            placeholder="Enter designation details"
+                                            placeholder="Enter employee designation"
                                         />
                                         <div
                                             v-if="errors.designation"

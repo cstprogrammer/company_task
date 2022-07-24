@@ -33,6 +33,7 @@ class UserController extends Controller
             return to_route('users.index')->with('success', 'User '.$user->name.' deleted successfully.');
         } catch (\Throwable $th) {
             DB::rollback();
+
             return to_route('users.index')->with('error', 'Error deleting user. '.$th->getMessage());
         }
     }
@@ -44,8 +45,9 @@ class UserController extends Controller
     {
         try {
             $user = User::findOrFail($id);
+
             return Inertia::render('User/Edit', [
-                'user' => $user
+                'user' => $user,
             ]);
         } catch (\Throwable $th) {
             return to_route('users.index')->with('error', 'Error creating user. '.$th->getMessage());
@@ -58,21 +60,12 @@ class UserController extends Controller
     public function index(Request $request)
     {
         return Inertia::render('User/Index', [
-            'users' => User::where('id','!=',auth()->user()->id)
-                ->when($request->q, function($query, $q){
-                    $query->where('name', 'LIKE', "%".$q."%");
-                    $query->Orwhere('email', 'LIKE', "%".$q."%");
-                })->orderBy('id', 'desc')->paginate(10)
+            'users' => User::where('id', '!=', auth()->user()->id)
+                ->when($request->q, function ($query, $q) {
+                    $query->where('name', 'LIKE', '%'.$q.'%');
+                    $query->Orwhere('email', 'LIKE', '%'.$q.'%');
+                })->orderBy('id', 'desc')->paginate(10),
         ]);
-    }
-
-    /**
-     * Display a listing of user request data.
-     */
-    public function search(Request $request)
-    {
-        $users = User::where('name', 'like', '%' . $request->q . '%')->paginate(10);
-        return response()->json($users);
     }
 
     /*
@@ -100,6 +93,7 @@ class UserController extends Controller
             return to_route('users.index')->with('success', 'User '.$attributes->name.' created successfully.');
         } catch (\Throwable $th) {
             DB::rollback();
+
             return to_route('users.index')->with('error', 'Error creating user. '.$th->getMessage());
         }
     }
@@ -111,9 +105,9 @@ class UserController extends Controller
     {
         //check form validation rule
         $this->validate($request, [
-            'name'                  => ['required', 'string', 'max:255'],
-            'email'                 => 'unique:users,email,'.$id,
-            'password'              => 'nullable|string|min:8|confirmed',
+            'name' => ['required', 'string', 'max:255'],
+            'email' => 'unique:users,email,'.$id,
+            'password' => 'nullable|string|min:8|confirmed',
             'password_confirmation' => 'sometimes|required_with:password|same:password',
         ]);
 
@@ -121,16 +115,17 @@ class UserController extends Controller
         DB::beginTransaction();
         try {
             $user = User::findOrFail($id);
-                $user->update([
-                    'name'      => $request->name,
-                    'email'     => $request->email,
-                    'password'  => Hash::make($request->password),
-                ]);
+            $user->update([
+                'name' => $request->name,
+                'email' => $request->email,
+                'password' => Hash::make($request->password),
+            ]);
             DB::commit();
             //end transaction
             return to_route('users.index')->with('success', 'User '.$user->name.' updated successfully.');
         } catch (\Throwable $th) {
             DB::rollback();
+
             return to_route('users.index')->with('error', 'Error updating user. '.$th->getMessage());
         }
     }

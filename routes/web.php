@@ -23,13 +23,9 @@ Route::get('/', function () {
 });
 
 Route::middleware(['auth'])->prefix('admin')->group(function () {
-
-    Route::post('/user/search', [UserController::class, 'search'])
-            ->name('user.search');
-
     Route::resource('users', UserController::class);
 
-   Route::resource('companies', CompanyController::class);
+    Route::resource('companies', CompanyController::class);
 
     Route::resource('departments', DepartmentController::class);
 
@@ -37,8 +33,8 @@ Route::middleware(['auth'])->prefix('admin')->group(function () {
 });
 
 Auth::routes([
-    'register'  => false,
-    'reset'     => false,
-    'verify'    => false,
-    'confirm'   => false,
+    'register' => false,
+    'reset' => false,
+    'verify' => false,
+    'confirm' => false,
 ]);
