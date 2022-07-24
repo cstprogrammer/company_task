@@ -16,6 +16,8 @@ return new class extends Migration
         Schema::create('departments', function (Blueprint $table) {
             $table->bigIncrements('id');
             $table->string('name');
+            $table->unsignedBigInteger('company_id')->nullable();
+            $table->foreign('company_id')->references('id')->on('companies');
             $table->timestamps();
             $table->softDeletes();
         });

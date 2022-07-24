@@ -12,6 +12,7 @@ class Department extends Model
      * @var array<int, string>
      */
     protected $fillable = [
+        'company_id',
         'name',
     ];
 }
