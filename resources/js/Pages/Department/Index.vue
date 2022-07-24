@@ -111,9 +111,9 @@
                                         <td>{{ index + 1 }}</td>
                                         <td>{{ department.name }}</td>
                                         <td>
-                                            <button class="btn btn-info btn-sm" v-if="department.company">
+                                            <span  v-if="department.company">
                                                 {{ department.company.name }}
-                                            </button>
+                                            </span>
 
                                         </td>
                                         <td>

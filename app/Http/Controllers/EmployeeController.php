@@ -85,7 +85,7 @@ class EmployeeController extends Controller
             $query->Orwhere('employee_number', $q);
             $query->Orwhere('email', 'LIKE', '%'.$q.'%');
         })->orderBy('id', 'desc')
-            ->with('department')
+            ->with('company')
             ->paginate(10);
 
         return Inertia::render('Employee/Index', [
@@ -105,7 +105,7 @@ class EmployeeController extends Controller
             'department_id' => ['required'],
             'designation' => ['required', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:employees'],
-            'employee_number' => ['required', 'max:255'],
+            'employee_number' => ['required', 'max:255','unique:employees'],
             'name' => ['required', 'string', 'max:255'],
         ]);
 
@@ -136,7 +136,7 @@ class EmployeeController extends Controller
             'department_id' => ['required'],
             'designation' => ['required', 'max:255'],
             'email' => 'unique:employees,email,'.$id,
-            'employee_number' => ['required', 'max:255'],
+            'employee_number' => 'unique:employees,employee_number,'.$id,
             'name' => ['required', 'string', 'max:255'],
         ]);
 

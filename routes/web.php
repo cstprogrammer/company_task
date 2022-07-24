@@ -3,7 +3,6 @@
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\EmployeeController;
-use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -23,7 +22,6 @@ Route::get('/', function () {
 });
 
 Route::middleware(['auth'])->prefix('admin')->group(function () {
-    Route::resource('users', UserController::class);
 
     Route::resource('companies', CompanyController::class);
 

@@ -13,7 +13,7 @@
                     <div class="col-sm-6">
                         <ol class="breadcrumb float-sm-right">
                             <li class="breadcrumb-item">
-                                <Link :href="route('users.index')">Company</Link>
+                                <Link :href="route('employees.index')">Company</Link>
                             </li>
                             <li class="breadcrumb-item active">Edit</li>
                         </ol>
