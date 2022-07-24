@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Company;
+use App\Models\Department;
 use App\Models\Employee;
 use App\Repositories\CommonRepository;
 use Illuminate\Http\Request;
@@ -11,13 +13,19 @@ use Inertia\Inertia;
 class EmployeeController extends Controller
 {
     // space that we can use the repository from
+    protected $company;
+
+    protected $department;
+
     protected $model;
 
-    public function __construct(Employee $employee)
+    public function __construct(Employee $employee, Company $company, Department $department)
     {
         parent::__construct();
         // set the model
         $this->model = new CommonRepository($employee);
+        $this->company = new CommonRepository($company);
+        $this->department = new CommonRepository($department);
     }
 
     /*
@@ -25,7 +33,10 @@ class EmployeeController extends Controller
      */
     public function create()
     {
-        return Inertia::render('Employee/Create');
+        $data['companies'] = $this->company->all();
+        $data['departments'] = $this->department->all();
+
+        return Inertia::render('Employee/Create', $data);
     }
 
     /**
@@ -54,11 +65,11 @@ class EmployeeController extends Controller
     public function edit($id)
     {
         try {
-            $employee = $this->model->find($id);
+            $data['companies'] = $this->company->all();
+            $data['departments'] = $this->department->all();
+            $data['employee'] = $this->model->find($id);
 
-            return Inertia::render('Employee/Edit', [
-                'employee' => $employee,
-            ]);
+            return Inertia::render('Employee/Edit', $data);
         } catch (\Throwable $th) {
             return to_route('employees.index')->with('error', 'Error creating employee. '.$th->getMessage());
         }
@@ -73,7 +84,9 @@ class EmployeeController extends Controller
             $query->where('name', 'LIKE', '%'.$q.'%');
             $query->Orwhere('employee_number', $q);
             $query->Orwhere('email', 'LIKE', '%'.$q.'%');
-        })->orderBy('id', 'desc')->paginate(10);
+        })->orderBy('id', 'desc')
+            ->with('department')
+            ->paginate(10);
 
         return Inertia::render('Employee/Index', [
             'employees' => $employees,
@@ -87,11 +100,13 @@ class EmployeeController extends Controller
     {
         //check form validation rule
         $this->validate($request, [
-            'name' => ['required', 'string', 'max:255'],
-            'employee_number' => ['required', 'max:255'],
-            'email' => ['required', 'string', 'email', 'max:255', 'unique:employees'],
+            'company_id' => ['required'],
             'contact' => ['required', 'max:255'],
+            'department_id' => ['required'],
             'designation' => ['required', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', 'unique:employees'],
+            'employee_number' => ['required', 'max:255'],
+            'name' => ['required', 'string', 'max:255'],
         ]);
 
         //start transaction
@@ -116,11 +131,13 @@ class EmployeeController extends Controller
     {
         //check form validation rule
         $this->validate($request, [
-            'name' => ['required', 'string', 'max:255'],
-            'employee_number' => ['required', 'max:255'],
-            'email' => 'unique:employees,email,'.$id,
+            'company_id' => ['required'],
             'contact' => ['required', 'max:255'],
+            'department_id' => ['required'],
             'designation' => ['required', 'max:255'],
+            'email' => 'unique:employees,email,'.$id,
+            'employee_number' => ['required', 'max:255'],
+            'name' => ['required', 'string', 'max:255'],
         ]);
 
         //start transaction

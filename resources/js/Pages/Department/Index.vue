@@ -98,7 +98,8 @@
                                     <thead>
                                     <tr>
                                         <th>S.N</th>
-                                        <th>Name</th>
+                                        <th>Department Name</th>
+                                        <th>Company Name</th>
                                         <th>Action</th>
                                     </tr>
                                     </thead>
@@ -109,6 +110,12 @@
                                     >
                                         <td>{{ index + 1 }}</td>
                                         <td>{{ department.name }}</td>
+                                        <td>
+                                            <button class="btn btn-info btn-sm" v-if="department.company">
+                                                {{ department.company.name }}
+                                            </button>
+
+                                        </td>
                                         <td>
                                                 <Link
                                                     :href="

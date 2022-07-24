@@ -48,6 +48,29 @@
                             <form @submit.prevent="update()" class="mb-auto">
                                 <div class="card-body">
                                     <div class="form-group">
+                                        <label>Company</label>
+                                        <span class="text-danger">
+                                            *
+                                        </span>
+                                        <select v-model="form.company_id"
+                                                class="form-control"
+                                                :class="{
+                                                'is-invalid': errors.company_id,
+                                                }"
+                                                placeholder="Enter department name"
+                                        >
+                                            <option :value="null" />
+                                            <option v-for="company in companies" :key="company.id" :value="company.id">{{ company.name }}</option>
+                                        </select>
+                                        <div
+                                            v-if="errors.company_id"
+                                            class="invalid-feedback"
+                                        >
+                                            {{ errors.company_id }}
+                                        </div>
+                                    </div>
+
+                                    <div class="form-group">
                                         <label>Name</label>
                                         <span class="text-danger">
                                             *
@@ -120,7 +143,8 @@ export default {
     data () {
         return {
             form: reactive({
-                name: this.department.name
+                name: this.department.name,
+                company_id: this.department.company_id,
             }),
             isLoading: false,
         };
@@ -144,8 +168,9 @@ export default {
     },
 
     props: {
-        errors: Object,
+        companies: Array,
         department: Object,
+        errors: Object,
     },
 };
 </script>

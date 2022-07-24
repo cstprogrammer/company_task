@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Company;
 use App\Models\Department;
 use App\Repositories\CommonRepository;
 use Illuminate\Http\Request;
@@ -13,11 +14,14 @@ class DepartmentController extends Controller
     // space that we can use the repository from
     protected $model;
 
-    public function __construct(Department $department)
+    protected $company;
+
+    public function __construct(Department $department, Company $company)
     {
         parent::__construct();
         // set the model
         $this->model = new CommonRepository($department);
+        $this->company = new CommonRepository($company);
     }
 
     /*
@@ -25,7 +29,11 @@ class DepartmentController extends Controller
      */
     public function create()
     {
-        return Inertia::render('Department/Create');
+        $companies = $this->company->all();
+
+        return Inertia::render('Department/Create', [
+            'companies' => $companies,
+        ]);
     }
 
     /**
@@ -54,11 +62,10 @@ class DepartmentController extends Controller
     public function edit($id)
     {
         try {
-            $department = $this->model->find($id);
+            $data['department'] = $this->model->find($id);
+            $data['companies'] = $this->company->all();
 
-            return Inertia::render('Department/Edit', [
-                'department' => $department,
-            ]);
+            return Inertia::render('Department/Edit', $data);
         } catch (\Throwable $th) {
             return to_route('departments.index')->with('error', 'Error creating user. '.$th->getMessage());
         }
@@ -71,7 +78,10 @@ class DepartmentController extends Controller
     {
         $departments = $this->model->getModel()->when($request->q, function ($query, $q) {
             $query->where('name', 'LIKE', '%'.$q.'%');
-        })->orderBy('id', 'desc')->paginate(10);
+            $query->where('company_id', $q);
+        })->orderBy('id', 'desc')
+            ->with('company')
+            ->paginate(10);
 
         return Inertia::render('Department/Index', [
             'departments' => $departments,
@@ -85,6 +95,7 @@ class DepartmentController extends Controller
     {
         //check form validation rule
         $this->validate($request, [
+            'company_id' => ['required'],
             'name' => ['required', 'string', 'max:255'],
         ]);
 
@@ -110,6 +121,7 @@ class DepartmentController extends Controller
     {
         //check form validation rule
         $this->validate($request, [
+            'company_id' => ['required'],
             'name' => ['required', 'string', 'max:255'],
         ]);
 

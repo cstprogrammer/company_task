@@ -98,7 +98,8 @@
                                     <thead>
                                     <tr>
                                         <th>S.N</th>
-                                        <th>Name</th>
+                                        <th>Full Name</th>
+                                        <th>Department</th>
                                         <th>Employee Number</th>
                                         <th>Email</th>
                                         <th>Contact</th>
@@ -113,6 +114,12 @@
                                     >
                                         <td>{{ index + 1 }}</td>
                                         <td>{{ employee.name }}</td>
+                                        <td>
+                                            <button class="btn btn-primary btn-sm" v-if="employee.department">
+                                                {{ employee.department.name }}
+                                            </button>
+
+                                        </td>
                                         <td>{{ employee.employee_number }}</td>
                                         <td>{{ employee.email }}</td>
                                         <td>{{ employee.contact }}</td>
