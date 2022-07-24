@@ -37,13 +37,6 @@
                 >
 
                     <li class="nav-item">
-                        <Link :href="route('users.index')" class="nav-link" :class="{'active' : $page.url.startsWith('/admin/users')}">
-                            <i class="nav-icon fas fa-users"></i>
-                            <p>User</p>
-                        </Link>
-                    </li>
-
-                    <li class="nav-item">
                         <Link :href="route('companies.index')"
                               class="nav-link" :class="{'active' : $page.url.startsWith('/admin/companies')}"
                         >

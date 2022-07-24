@@ -18,6 +18,8 @@ use Illuminate\Support\Facades\Route;
 */
 Route::get('companies', [CompanyController::class, 'index']);
 Route::get('departments', [DepartmentController::class, 'index']);
+Route::get('employeeDetails/{id}', [EmployeeController::class, 'employeeDetails']);
+Route::get('employeeListByDepartment/{id}', [EmployeeController::class, 'employeeListByDepartment']);
 Route::get('employees', [EmployeeController::class, 'index']);
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {

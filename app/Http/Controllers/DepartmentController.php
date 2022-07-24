@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Company;
 use App\Models\Department;
+use App\Models\Employee;
 use App\Repositories\CommonRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -44,11 +45,19 @@ class DepartmentController extends Controller
         //start transaction
         DB::beginTransaction();
         try {
-            $department = $this->model->find($id);
-            $this->model->delete($id);
-            DB::commit();
-            //end transaction
-            return to_route('departments.index')->with('success', 'Department '.$department->name.' deleted successfully.');
+            //check foreign key from   child table
+            $employee = Employee::query()
+                ->where('department_id', $id)
+                ->count();
+            if ($employee < 1) {
+                $department = $this->model->find($id);
+                $this->model->delete($id);
+                DB::commit();
+                //end transaction
+                return to_route('departments.index')->with('success', 'Department '.$department->name.' deleted successfully.');
+            } else {
+                return to_route('departments.index')->with('error', 'Company data in use . Unable to delete.');
+            }
         } catch (\Throwable $th) {
             DB::rollback();
 

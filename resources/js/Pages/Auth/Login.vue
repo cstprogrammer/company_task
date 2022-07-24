@@ -84,15 +84,12 @@ import LayoutApp from "../../Layouts/Auth/App.vue";
 //import reactivity API dari vue
 import { reactive } from "vue";
 
-//import inertia adapter
-import { Inertia } from "@inertiajs/inertia";
-
 export default {
     data () {
         return {
-            form: reactive({
-                email: "",
-                password: ""
+            form: this.$inertia.form({
+                email: 'admin@admin.com',
+                password: 'admin',
             }),
             isLoading: false,
         };
@@ -104,7 +101,7 @@ export default {
     methods: {
         storeLogin () {
             this.isLoading = true;
-            Inertia.post("/login", this.form, {
+            this.$inertia.post("/login", this.form, {
                 onSuccess: (data) => {
                     this.isLoading = false;
                 },
